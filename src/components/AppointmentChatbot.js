@@ -126,20 +126,25 @@ const AppointmentChatbot = () => {
 
 
   const getNextTwoDates = () => {
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const monthsOfYear = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
     const today = new Date();
     const thisHr = today.getHours();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
     const dayAfterTomorrow = new Date(today);
     dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-
+  
     if (thisHr < 18) {
-      return today.toISOString().split('T')[0] + ',' + tomorrow.toISOString().split('T')[0] + ',' + dayAfterTomorrow.toISOString().split('T')[0];
-    }
-    else {
-      return tomorrow.toISOString().split('T')[0] + ',' + dayAfterTomorrow.toISOString().split('T')[0];
+      return `${daysOfWeek[today.getDay()]} ${today.getDate()} ${monthsOfYear[today.getMonth()]} ${today.getFullYear()}, ${daysOfWeek[tomorrow.getDay()]} ${tomorrow.getDate()} ${monthsOfYear[tomorrow.getMonth()]} ${tomorrow.getFullYear()}, ${daysOfWeek[dayAfterTomorrow.getDay()]} ${dayAfterTomorrow.getDate()} ${monthsOfYear[dayAfterTomorrow.getMonth()]} ${dayAfterTomorrow.getFullYear()}`;
+    } else {
+      return `${daysOfWeek[tomorrow.getDay()]} ${tomorrow.getDate()} ${monthsOfYear[tomorrow.getMonth()]} ${tomorrow.getFullYear()}, ${daysOfWeek[dayAfterTomorrow.getDay()]} ${dayAfterTomorrow.getDate()} ${monthsOfYear[dayAfterTomorrow.getMonth()]} ${dayAfterTomorrow.getFullYear()}`;
     }
   };
+  
+  console.log(getNextTwoDates());
+  
 
   const addMessage = (actor, message) => {
     setMessages((prevMessages) => [...prevMessages, { type: actor, content: message }]);
@@ -254,12 +259,16 @@ const AppointmentChatbot = () => {
 
   };
 
-
+  const moment = require('moment');
   const fetchAppointments = async (date) => {
     try {
+      console.log("test");
+      const parsedDate = moment(selectedAppointment.appointmentDate, 'ddd D MMM YYYY');
+      const formattedDate = parsedDate.format('YYYY-MM-DD');
+      console.log("formatted date: " , formattedDate);
       const response = await axios.post(
         'https://h878q1k811.execute-api.us-west-2.amazonaws.com/Prod/appointments',
-        { appointmentDate: selectedAppointment.appointmentDate }
+        { appointmentDate: formattedDate }
       );
       console.log(response.data);
       console.log(response.data.availableSlots);
