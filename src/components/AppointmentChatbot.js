@@ -160,12 +160,15 @@ const AppointmentChatbot = () => {
       const response = await axios.get(
         `https://h878q1k811.execute-api.us-west-2.amazonaws.com/Prod/appointments/${patientPhone}`
       );
-      console.log('FOUND: ' + JSON.stringify(response.data));
-      if(new Date(response.data.appointmentDate) > new Date())
+      console.log('DATA: ' + JSON.stringify(response.data));
+      console.log('LHS: ' + new Date(response.data.appointmentDate) );
+      console.log('RHS: ' + new Date());
+      if (new Date(response.data.appointmentDate).setHours(0,0,0,0) >= new Date().setHours(0, 0, 0, 0)) 
       {
         selectedAppointment['appointmentDate'] = response.data.appointmentDate;
         selectedAppointment['appointmentTime'] = response.data.appointmentTime;
         selectedAppointment['status'] = 'scheduled';
+        console.log("SET ALSO: " + selectedAppointment);
       }
 
     } catch (error) {
@@ -316,12 +319,13 @@ const AppointmentChatbot = () => {
 
   const bookAppointment = async (appointment) => {
     setSelectedAppointment(appointment);
-
+    const parsedDate = moment(appointment.appointmentDate, 'ddd D MMM YYYY');
+    const formattedDate = parsedDate.format('YYYY-MM-DD');
     try {
       const response = await axios.put(
         'https://h878q1k811.execute-api.us-west-2.amazonaws.com/Prod/appointments',
         {
-          appointmentDate: appointment.appointmentDate,
+          appointmentDate: formattedDate,
           appointmentTime: appointment.appointmentTime,
           patientName: appointment.patientName,
           patientPhone: appointment.patientPhone,
